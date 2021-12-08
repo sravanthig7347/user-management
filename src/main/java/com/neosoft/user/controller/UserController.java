@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.neosoft.user.model.UserRecord;
 import com.neosoft.user.service.UserService;
 
+import lombok.NonNull;
+
 @RestController
 @RequestMapping("/usermanagement") 
 public class UserController {
@@ -37,11 +40,13 @@ public class UserController {
 		  return userService.getAllUsers();
 	}
 	
+	
 	@GetMapping("/getAllActiveUsers") 
 	public List<UserRecord> getAllActiveUsers() { 
 		  
 		  return userService.getAllActiveUsers();
 	}
+	
 	
 	@GetMapping("/getUserById/{id}")
 	public UserRecord getUser(@PathVariable Long id) {
@@ -50,11 +55,13 @@ public class UserController {
 
 	}
 	
+	
 	@GetMapping("/getAllUsersSorted") 
 	public List<UserRecord> getAllUsersSorted(@RequestParam String sortBy ) { 
 		  
 		  return userService.getAllUsersSorted(sortBy);
 	}
+	
 	 
 	@PostMapping(value ="/addUser", consumes = {MediaType.APPLICATION_JSON_VALUE} , produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<UserRecord> addUser(@RequestBody UserRecord userRecord)  
@@ -66,7 +73,8 @@ public class UserController {
 	                     .create(String.format("/getUserById/%s", userRecord.getId())))
 	            .body(newUserRecord);
         
-	}    
+	} 
+	
 	
 	@PutMapping(value ="/modifyUser", consumes = {MediaType.APPLICATION_JSON_VALUE} , produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<UserRecord> updateUser(@RequestBody UserRecord userRecord)  
@@ -80,6 +88,7 @@ public class UserController {
         
 	} 
 	
+	
 	@DeleteMapping("/deleteUserById/{id}")
 	public ResponseEntity<UserRecord> deleteUser(@PathVariable Long id) {
 
@@ -91,5 +100,12 @@ public class UserController {
 
 	} 
 	
+	// Searching user by fname or lname or pincode
+	
+	@GetMapping("/searchUser/{input}")
+	public List<UserRecord> searchByNameOrPincode(@PathVariable String input){
+		
+		return userService.searchForUsers(input);
+				
+	}
 }
-

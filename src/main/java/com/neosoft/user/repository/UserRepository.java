@@ -1,10 +1,10 @@
 package com.neosoft.user.repository;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.stereotype.Repository;
-
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import com.neosoft.user.model.UserRecord;
-@Repository
+
+@RepositoryRestResource(collectionResourceRel = "usermanagement", path = "usermanagement")
 public interface UserRepository  extends PagingAndSortingRepository<UserRecord, Long>{
 	
 }

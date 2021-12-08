@@ -5,9 +5,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
-import com.neosoft.user.exception.UserNotFoundException;
 import com.neosoft.user.model.UserRecord;
 import com.neosoft.user.repository.UserRepository;
+import com.neosoft.user.validators.RequestValidator;
+import com.neosoft.user.exception.UserNotFoundException;
 
 import java.util.*;
 
@@ -17,6 +18,8 @@ import java.util.*;
 		@Autowired
 		private UserRepository userrepository;
 		
+		@Autowired
+		private RequestValidator requestValidator;
 	 
 		public List<UserRecord> getAllUsers()  
 		{    
@@ -38,7 +41,7 @@ import java.util.*;
 			if (tempUserRecord.isPresent()) {
 				return tempUserRecord.get();
 			} else {
-				throw new UserNotFoundException(userRecord) ;
+				throw new UserNotFoundException("User Not Found with ID :"+ userRecord.toString());  
 			}
 		}
 	
@@ -67,8 +70,7 @@ import java.util.*;
 			return userActiveRecords;   
 		} 
 		
-		public List<UserRecord> getAllUsersSorted(String sortBy)  
-		{    
+		public List<UserRecord> getAllUsersSorted(String sortBy) {    
 			List<UserRecord> userRecords = new ArrayList<>();    
 			userrepository.findAll(Sort.by(Direction.ASC,sortBy)).forEach(userRecords::add);    
 			return userRecords;    
@@ -82,9 +84,31 @@ import java.util.*;
 				userrepository.save(deleteUser);
 				return deleteUser;
 			} else {
-				return null;
+				throw new UserNotFoundException("User Not Found to Delete with ID :"+ userRecord.toString());
 			}
 		
-		} 
+		}
+
+		public List<UserRecord> searchForUsers(String searchString) {
+			
+			List<UserRecord> userRecords = new ArrayList<>();  
+
+			if(requestValidator.isValidPincode(searchString)) {
+				getAllUsers().stream().filter(user -> user.getPinCode() == Integer.valueOf(searchString))
+					.forEach(userRecords::add);
+			} else {
+				getAllUsers().stream().filter(user -> user.getFistName().equals( searchString) 
+						|| user.getLastName() .equals( searchString)).forEach(userRecords::add);
+			}
+			
+			if (!userRecords.isEmpty())
+				return userRecords;
+			else 
+				throw new UserNotFoundException("User Not Found with search string"+ searchString);
+			
+			
+		}
+		
+		
 	
 }
